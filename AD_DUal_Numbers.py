@@ -1,7 +1,7 @@
 import numpy as np
 
 class Dual:
-    def __innit__(self, real, dual):
+    def __init__(self, real, dual):
         """
         real: real part of the dual number
         dual: dict
@@ -82,4 +82,48 @@ class Dual:
                 dual[key] = self.dual[key] / other
         return Dual(real, dual)
     
+    def __pow__(self, power):
+        real = self.real ** power
+        dual = {}
+        for key in self.dual:
+            dual[key] = power * self.real ** (power - 1) * self.dual[key]
+        return Dual(real, dual)
+
+    def __neg__(self):
+        return Dual(-self.real, {key: -self.dual[key] for key in self.dual})
+
+    def dual_log(self):
+        real = np.log(self.real)
+        dual = {key: self.dual[key] / self.real for key in self.dual}
+        return Dual(real, dual)
+    
+    def dual_sin(self):
+        real = np.sin(self.real)
+        dual = {key: np.cos(self.real) * self.dual[key] for key in self.dual}
+        return Dual(real, dual)
+    
+    def dual_cos(self):
+        real = np.cos(self.real)
+        dual = {key: - np.cos(self.real) * self.dual[key] for key in self.dual}
+        return Dual(real, dual)
+    
+    def dual_exp(self):
+        real = np.exp(self.real)
+        dual = {key: np.exp(self.real) * self.dual[key] for key in self.dual}
+        return Dual(real, dual)
+    
+    def dual_sigmoid(self):
+        real = 1 / (1 + np.exp(-self.real))
+        dual = {key: np.exp(-self.real) / (1 + np.exp(-self.real)) ** 2 * self.dual[key] for key in self.dual}
+        return Dual(real, dual)
+
+    def __str__(self):
+        s = "f(" + ",".join(self.dual.keys()) + ") = " + str(self.real)+ "\n"
+        for key in self.dual:
+            s += "df/d"+str(key)+" = " + str(self.dual[key]) + "\n"
+        return s
+    
+    def to_vector(self):
+        return np.array([self.dual[key] for key in self.dual])
+
             
