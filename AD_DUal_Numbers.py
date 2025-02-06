@@ -92,27 +92,27 @@ class Dual:
     def __neg__(self):
         return Dual(-self.real, {key: -self.dual[key] for key in self.dual})
 
-    def dual_log(self):
-        real = np.log(self.real)
+    def log(self):
+        real = np.log(self.real*a)
         dual = {key: self.dual[key] / self.real for key in self.dual}
         return Dual(real, dual)
     
-    def dual_sin(self):
+    def sin(self):
         real = np.sin(self.real)
         dual = {key: np.cos(self.real) * self.dual[key] for key in self.dual}
         return Dual(real, dual)
     
-    def dual_cos(self):
+    def cos(self):
         real = np.cos(self.real)
         dual = {key: - np.cos(self.real) * self.dual[key] for key in self.dual}
         return Dual(real, dual)
     
-    def dual_exp(self):
+    def exp(self):
         real = np.exp(self.real)
         dual = {key: np.exp(self.real) * self.dual[key] for key in self.dual}
         return Dual(real, dual)
     
-    def dual_sigmoid(self):
+    def sigmoid(self):
         real = 1 / (1 + np.exp(-self.real))
         dual = {key: np.exp(-self.real) / (1 + np.exp(-self.real)) ** 2 * self.dual[key] for key in self.dual}
         return Dual(real, dual)
@@ -126,4 +126,10 @@ class Dual:
     def to_vector(self):
         return np.array([self.dual[key] for key in self.dual])
 
-            
+    
+x = Dual(1, {"x": 1})
+y = Dual(2, {"y": 1})
+z = Dual(3, {"z": 1})
+
+f = x ** 2 + y ** 2 + z.sin()
+print(f)
